@@ -71,3 +71,43 @@ def pregunta_01():
 
 
     """
+    import pandas as pd
+    import os
+    import zipfile
+    
+    # Extraer datos del zip
+    with zipfile.ZipFile('files/input.zip', 'r') as archivo_zip:
+        archivo_zip.extractall('files')
+
+    directorio_entrada = 'files/input'
+    directorio_salida = 'files/output'
+
+    os.makedirs(directorio_salida, exist_ok=True)
+
+    datasets = ['train', 'test']
+    sentimientos = ['negative', 'positive', 'neutral']
+
+    for dataset in datasets:
+        
+        textos = []
+        categorias = []
+        
+        ruta_dataset = os.path.join(directorio_entrada, dataset)
+        
+        for sentimiento in sentimientos:
+            
+            ruta_sentimiento = os.path.join(ruta_dataset, sentimiento)
+            
+            archivos = os.listdir(ruta_sentimiento)
+            for archivo in archivos:
+                ruta_completa = os.path.join(ruta_sentimiento, archivo)
+                
+                with open(ruta_completa, 'r', encoding='utf-8') as f:
+                    contenido = f.read().strip()
+                    textos.append(contenido)
+                    categorias.append(sentimiento)
+        
+        dataframe = pd.DataFrame({'phrase': textos, 'target': categorias})
+        nombre_archivo = f'{dataset}_dataset.csv'
+        dataframe.to_csv(os.path.join(directorio_salida, nombre_archivo), index=False)
+        
